@@ -1,50 +1,119 @@
-# [PROJECT_NAME] Constitution
-<!-- Example: Spec Constitution, TaskFlow Constitution, etc. -->
+<!--
+Sync Impact Report - Constitution v1.0.0
+────────────────────────────────────────────────────────────────
+Version Change: N/A → 1.0.0 (Initial ratification)
+Modified Principles: N/A (first version)
+Added Sections:
+  - Core Principles (I-VI)
+  - Technical Standards
+  - Content Management Standards
+  - Governance
+
+Templates Requiring Updates:
+  ✅ plan-template.md - Constitution Check references updated
+  ✅ spec-template.md - Alignment verified
+  ✅ tasks-template.md - Task categorization aligns with principles
+
+Follow-up TODOs: None
+────────────────────────────────────────────────────────────────
+-->
+
+# Microblog CMS Constitution
 
 ## Core Principles
 
-### [PRINCIPLE_1_NAME]
-<!-- Example: I. Library-First -->
-[PRINCIPLE_1_DESCRIPTION]
-<!-- Example: Every feature starts as a standalone library; Libraries must be self-contained, independently testable, documented; Clear purpose required - no organizational-only libraries -->
+### I. Content-First Architecture
 
-### [PRINCIPLE_2_NAME]
-<!-- Example: II. CLI Interface -->
-[PRINCIPLE_2_DESCRIPTION]
-<!-- Example: Every library exposes functionality via CLI; Text in/out protocol: stdin/args → stdout, errors → stderr; Support JSON + human-readable formats -->
+Every feature MUST serve the primary purpose of creating, organizing, or consuming microblog content. Content models (Post, Tag, Comment) are core entities and MUST remain simple, versioned, and independently testable. Features that do not directly support content creation, tagging, publishing, or commenting require explicit justification.
 
-### [PRINCIPLE_3_NAME]
-<!-- Example: III. Test-First (NON-NEGOTIABLE) -->
-[PRINCIPLE_3_DESCRIPTION]
-<!-- Example: TDD mandatory: Tests written → User approved → Tests fail → Then implement; Red-Green-Refactor cycle strictly enforced -->
+**Rationale**: Keeps the CMS focused on its primary mission—enabling rapid microblogging without feature bloat.
 
-### [PRINCIPLE_4_NAME]
-<!-- Example: IV. Integration Testing -->
-[PRINCIPLE_4_DESCRIPTION]
-<!-- Example: Focus areas requiring integration tests: New library contract tests, Contract changes, Inter-service communication, Shared schemas -->
+### II. Mobile-First Responsive Design
 
-### [PRINCIPLE_5_NAME]
-<!-- Example: V. Observability, VI. Versioning & Breaking Changes, VII. Simplicity -->
-[PRINCIPLE_5_DESCRIPTION]
-<!-- Example: Text I/O ensures debuggability; Structured logging required; Or: MAJOR.MINOR.BUILD format; Or: Start simple, YAGNI principles -->
+All user interfaces MUST be designed mobile-first with responsive breakpoints. Desktop experiences are enhancements, not the baseline. Touch targets MUST meet minimum 44×44px accessibility standards. Performance budgets: <3s initial load on 3G, <100ms interaction response.
 
-## [SECTION_2_NAME]
-<!-- Example: Additional Constraints, Security Requirements, Performance Standards, etc. -->
+**Rationale**: Modern content consumers primarily use mobile devices; mobile-first ensures maximum reach and usability.
 
-[SECTION_2_CONTENT]
-<!-- Example: Technology stack requirements, compliance standards, deployment policies, etc. -->
+### III. Markdown as Content Source of Truth
 
-## [SECTION_3_NAME]
-<!-- Example: Development Workflow, Review Process, Quality Gates, etc. -->
+All post content MUST be stored and processed as Markdown. Rendering to HTML occurs at display time only. Markdown MUST support CommonMark specification with safe HTML sanitization. No rich-text editor lock-in—content remains portable and version-controllable.
 
-[SECTION_3_CONTENT]
-<!-- Example: Code review requirements, testing gates, deployment approval process, etc. -->
+**Rationale**: Ensures content longevity, portability, version control compatibility, and prevents vendor lock-in.
+
+### IV. Test-First for User Journeys (NON-NEGOTIABLE)
+
+Every user story MUST have acceptance tests written BEFORE implementation. Tests MUST fail initially, then pass after implementation (Red-Green-Refactor). Focus areas: post draft/publish workflow, tag filtering, comment moderation flow, timeline rendering accuracy.
+
+**Rationale**: Microblog CMS involves complex state transitions (draft→published) and content relationships that are error-prone without disciplined TDD.
+
+### V. Moderation-First Security
+
+User-generated content (comments) MUST pass through moderation gates before public visibility. Default policy: comments pending approval. XSS protection via sanitization MUST be applied to all user input. Rate limiting MUST be implemented for content submission endpoints.
+
+**Rationale**: UGC without moderation invites spam and abuse; security-first prevents reputation damage and legal liability.
+
+### VI. Timeline-Based Information Architecture
+
+Primary navigation MUST be timeline-based (chronological, reverse-chronological). Tag pages provide secondary navigation by topic. Each post MUST have canonical URL. Pagination/infinite scroll MUST maintain URL state for bookmarking and sharing.
+
+**Rationale**: Microblog format relies on temporal ordering; users expect Twitter/Tumblr-style chronological feeds with topic filtering.
+
+## Technical Standards
+
+### Technology Stack
+
+- **Frontend**: HTML5, CSS3 (with CSS Grid/Flexbox for responsive layouts), JavaScript (ES6+)
+- **Backend**: Python 3.11+ with FastAPI or Node.js 18+ with Express (to be clarified in plan phase)
+- **Database**: PostgreSQL 15+ for relational data (posts, tags, comments with moderation status)
+- **Markdown Rendering**: markdown-it (JS) or python-markdown with bleach sanitizer
+- **Testing**: pytest (Python) or Jest (JS) for backend; Playwright or Cypress for E2E
+
+### Performance Requirements
+
+- Initial page load: <3 seconds on 3G connection (Lighthouse score >80)
+- Time to Interactive (TTI): <5 seconds
+- Markdown rendering: <50ms for typical post (500 words)
+- API response time: p95 <200ms for content retrieval
+
+### Security Requirements
+
+- All user input MUST be sanitized (XSS prevention via DOMPurify or bleach)
+- CSRF protection for state-changing operations
+- Rate limiting: 10 posts/hour per user, 30 comments/hour per IP
+- Comment moderation MUST default to "pending" status
+
+## Content Management Standards
+
+### Post Lifecycle
+
+- **Draft**: Editable, visible only to author, not included in timelines
+- **Published**: Immutable content, visible in timelines, supports comments
+- State transition MUST be explicit user action with confirmation
+
+### Tag Management
+
+- Tags MUST be normalized (lowercase, no spaces, hyphen-separated)
+- Maximum 5 tags per post
+- Tag pages MUST show posts in reverse chronological order
+
+### Comment Moderation
+
+- Default status: Pending
+- Moderator actions: Approve, Reject, Flag for Review
+- Email notification to author on approval
+- Rejected comments stored for audit but never displayed
 
 ## Governance
-<!-- Example: Constitution supersedes all other practices; Amendments require documentation, approval, migration plan -->
 
-[GOVERNANCE_RULES]
-<!-- Example: All PRs/reviews must verify compliance; Complexity must be justified; Use [GUIDANCE_FILE] for runtime development guidance -->
+This constitution supersedes all other development practices. Changes to core principles require:
 
-**Version**: [CONSTITUTION_VERSION] | **Ratified**: [RATIFICATION_DATE] | **Last Amended**: [LAST_AMENDED_DATE]
-<!-- Example: Version: 2.1.1 | Ratified: 2025-06-13 | Last Amended: 2025-07-16 -->
+1. Documented rationale for the amendment
+2. Impact analysis on existing features
+3. Migration plan if breaking changes occur
+4. Version bump following semantic versioning (MAJOR.MINOR.PATCH)
+
+All code reviews, pull requests, and feature specifications MUST verify compliance with these principles. Complexity additions MUST be justified against the "Content-First" and "Mobile-First" principles.
+
+For runtime development guidance, refer to `.specify/templates/plan-template.md` and agent prompt files in `.github/prompts/`.
+
+**Version**: 1.0.0 | **Ratified**: 2026-01-11 | **Last Amended**: 2026-01-11

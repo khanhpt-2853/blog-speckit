@@ -1,0 +1,37 @@
+{
+  "buildCommand": "pnpm build",
+  "devCommand": "pnpm dev",
+  "installCommand": "pnpm install",
+  "framework": "nextjs",
+  "outputDirectory": ".next",
+  "env": {
+    "NEXT_PUBLIC_SUPABASE_URL": {
+      "type": "string",
+      "description": "Supabase project URL"
+    },
+    "NEXT_PUBLIC_SUPABASE_ANON_KEY": {
+      "type": "string",
+      "description": "Supabase anon/public key"
+    },
+    "SUPABASE_SERVICE_ROLE_KEY": {
+      "type": "secret",
+      "description": "Supabase service role key (sensitive)"
+    },
+    "UPSTASH_REDIS_REST_URL": {
+      "type": "string",
+      "description": "Upstash Redis REST URL for rate limiting"
+    },
+    "UPSTASH_REDIS_REST_TOKEN": {
+      "type": "secret",
+      "description": "Upstash Redis REST token (sensitive)"
+    },
+    "RESEND_API_KEY": {
+      "type": "secret",
+      "description": "Resend API key for email notifications"
+    },
+    "EMAIL_FROM": {
+      "type": "string",
+      "description": "From email address for notifications"
+    }
+  }
+}
