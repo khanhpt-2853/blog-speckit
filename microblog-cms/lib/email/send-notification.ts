@@ -22,7 +22,7 @@ export async function sendCommentApprovedNotification({
     return { success: false, error: "Email service not configured" };
   }
 
-  const postUrl = `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/posts/${postId}`;
+  const postUrl = `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/posts/${postId}`;
 
   try {
     const { data, error } = await resend.emails.send({

@@ -39,7 +39,7 @@ async function getPublishedPosts(
   if (dateTo) params.set("date_to", dateTo);
 
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/posts?${params.toString()}`,
+    `${process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"}/api/posts?${params.toString()}`,
     { cache: "no-store" }
   );
 
