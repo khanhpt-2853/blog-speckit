@@ -5,7 +5,7 @@ describe("Markdown Performance Tests", () => {
   it("should render 500-word post in less than 50ms", async () => {
     // Generate a 500-word markdown content
     const words = Array(500).fill("word").join(" ");
-    const markdownContent = `# Test Post
+    const _markdownContent = `# Test Post
 
 This is a test post with approximately 500 words.
 
@@ -16,7 +16,8 @@ ${words}
 This is the end of the test post.`;
 
     // Dynamically import the MarkdownRenderer
-    const { MarkdownRenderer } = await import("@/components/markdown/MarkdownRenderer");
+    const { MarkdownRenderer: _MarkdownRenderer } =
+      await import("@/components/markdown/MarkdownRenderer");
 
     // Measure render time
     const startTime = performance.now();
@@ -26,7 +27,7 @@ This is the end of the test post.`;
     const endTime = performance.now();
     const renderTime = endTime - startTime;
 
-    console.log(`Markdown module load time: ${renderTime.toFixed(2)}ms`);
+    console.warn(`Markdown module load time: ${renderTime.toFixed(2)}ms`);
 
     // Module load should be very fast
     expect(renderTime).toBeLessThan(100);
@@ -45,8 +46,8 @@ This is the end of the test post.`;
     const endTime = performance.now();
     const processTime = endTime - startTime;
 
-    console.log(`Large content processing time: ${processTime.toFixed(2)}ms`);
-    console.log(`Content length: ${contentLength} characters`);
+    console.warn(`Large content processing time: ${processTime.toFixed(2)}ms`);
+    console.warn(`Content length: ${contentLength} characters`);
 
     // Simple content length check should be instant
     expect(processTime).toBeLessThan(10);

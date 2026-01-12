@@ -85,7 +85,7 @@ export async function POST(request: NextRequest) {
       .from("comments")
       .insert({
         post_id,
-        user_id: user.id,
+        author_id: user.id,
         author_name: author_name.trim(),
         content: content.trim(),
         status: "pending",

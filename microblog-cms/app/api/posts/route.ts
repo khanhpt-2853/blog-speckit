@@ -139,8 +139,8 @@ export async function GET(request: NextRequest) {
     const dateTo = searchParams.get("date_to");
     const status = searchParams.get("status"); // 'draft' or 'published'
 
-    // If requesting drafts, user must be authenticated
-    if (status === "draft") {
+    // If requesting drafts or user's published posts, user must be authenticated
+    if (status === "draft" || status === "published") {
       const {
         data: { user },
       } = await supabase.auth.getUser();
@@ -148,13 +148,13 @@ export async function GET(request: NextRequest) {
         return unauthorizedError();
       }
 
-      // Fetch only authenticated user's drafts
+      // Fetch only authenticated user's posts (drafts or published)
       let query = supabase
         .from("posts")
         .select("*", { count: "exact" })
-        .eq("status", "draft")
+        .eq("status", status)
         .eq("author_id", user.id)
-        .order("updated_at", { ascending: false });
+        .order(status === "draft" ? "updated_at" : "published_at", { ascending: false });
 
       // Apply pagination
       const from = (page - 1) * perPage;
@@ -164,11 +164,11 @@ export async function GET(request: NextRequest) {
       const { data: posts, error, count } = await query;
 
       if (error) {
-        console.error("Error fetching drafts:", error);
-        return internalError("Failed to fetch drafts");
+        console.error(`Error fetching ${status} posts:`, error);
+        return internalError(`Failed to fetch ${status} posts`);
       }
 
-      // Fetch tags for each draft
+      // Fetch tags for each post
       const postsWithTags = await Promise.all(
         (posts || []).map(async (post) => {
           const { data: postTags } = await supabase

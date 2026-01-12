@@ -4,17 +4,21 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 
 async function getPendingComments() {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"}/api/moderation/comments?status=pending`,
-    { cache: "no-store" }
-  );
+  const supabase = await createClient();
 
-  if (!response.ok) {
-    return { data: [], meta: { total: 0 } };
+  // Fetch pending comments directly from database
+  const { data: comments, error } = await supabase
+    .from("comments")
+    .select("*, posts(id, title, slug)")
+    .eq("status", "pending")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error("Error fetching pending comments:", error);
+    return [];
   }
 
-  const result = await response.json();
-  return result.data;
+  return comments || [];
 }
 
 export default async function ModerationPage() {
@@ -32,8 +36,7 @@ export default async function ModerationPage() {
   // TODO: Check if user is a moderator
   // For now, any authenticated user can access
 
-  const result = await getPendingComments();
-  const comments = result.data || [];
+  const comments = await getPendingComments();
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">

@@ -2,11 +2,6 @@ import { notFound } from "next/navigation";
 import Link from "next/link";
 import { PostCard } from "@/components/posts/PostCard";
 
-interface Tag {
-  name: string;
-  display_name: string;
-}
-
 interface Post {
   id: string;
   title: string;
@@ -41,13 +36,13 @@ export default async function TagPage({
   const { page: pageParam } = await searchParams;
   const page = parseInt(pageParam || "1");
 
-  const data = await getTagPosts(tag, page);
+  const response = await getTagPosts(tag, page);
 
-  if (!data) {
+  if (!response || !response.data) {
     notFound();
   }
 
-  const { tag: tagData, data: posts, meta } = data;
+  const { tag: tagData, data: posts, meta } = response.data;
 
   return (
     <div className="mx-auto max-w-4xl px-4 py-8">

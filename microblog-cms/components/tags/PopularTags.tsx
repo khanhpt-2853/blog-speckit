@@ -26,7 +26,9 @@ export function PopularTags({ limit = 10 }: PopularTagsProps) {
       const response = await fetch("/api/tags");
       if (response.ok) {
         const data = await response.json();
-        const popularTags = (data.data || []).filter((t: Tag) => t.post_count > 0).slice(0, limit);
+        const popularTags = (data.data.data || [])
+          .filter((t: Tag) => t.post_count > 0)
+          .slice(0, limit);
         setTags(popularTags);
       }
     } catch (error) {

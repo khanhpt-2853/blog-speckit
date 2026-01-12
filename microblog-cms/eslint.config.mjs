@@ -3,6 +3,7 @@ import typescript from "@typescript-eslint/eslint-plugin";
 import typescriptParser from "@typescript-eslint/parser";
 import react from "eslint-plugin-react";
 import reactHooks from "eslint-plugin-react-hooks";
+import globals from "globals";
 
 export default [
   {
@@ -30,6 +31,9 @@ export default [
         },
       },
       globals: {
+        ...globals.browser,
+        ...globals.node,
+        ...globals.es2021,
         React: "readonly",
         JSX: "readonly",
       },
@@ -42,7 +46,14 @@ export default [
     rules: {
       "react-hooks/rules-of-hooks": "error",
       "react-hooks/exhaustive-deps": "warn",
-      "@typescript-eslint/no-unused-vars": ["warn", { argsIgnorePattern: "^_" }],
+      "@typescript-eslint/no-unused-vars": [
+        "warn",
+        {
+          argsIgnorePattern: "^_",
+          varsIgnorePattern: "^_",
+        },
+      ],
+      "no-unused-vars": "off", // Turn off base rule as it's replaced by @typescript-eslint/no-unused-vars
       "no-console": ["warn", { allow: ["warn", "error"] }],
     },
     settings: {

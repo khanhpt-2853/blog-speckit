@@ -3,7 +3,8 @@ import { Pagination } from "@/components/ui/Pagination";
 import { Sidebar } from "@/components/layout/Sidebar";
 import { HamburgerMenu } from "@/components/layout/HamburgerMenu";
 import { EmptyState, NoPostsIcon, NoResultsIcon } from "@/components/ui/EmptyState";
-import Link from "next/link";
+import { createClient } from "@/lib/supabase/server";
+import { UserProfileCard } from "@/components/layout/UserProfileCard";
 
 interface Post {
   id: string;
@@ -72,23 +73,38 @@ export default async function HomePage({ searchParams }: HomePageProps) {
 
   const { data: posts, meta } = await getPublishedPosts(page, tag, dateFrom, dateTo);
 
+  // Get current user
+  const supabase = await createClient();
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
   return (
     <div className="mx-auto max-w-7xl px-4 py-8">
-      <div className="grid grid-cols-1 gap-8 lg:grid-cols-[1fr,320px]">
-        {/* Main content */}
-        <div>
-          <div className="mb-8 flex items-center justify-between">
-            <h1 className="text-3xl font-bold">
-              {tag ? `Posts tagged with "${tag}"` : "Latest Posts"}
-            </h1>
-            <Link
-              href="/posts/new"
-              className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-            >
-              Write a Post
-            </Link>
-          </div>
+      {/* Page Header */}
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold text-gray-900">
+          {tag ? `Posts tagged with "${tag}"` : "Discover Stories"}
+        </h1>
+        <p className="mt-2 text-gray-600">
+          {tag
+            ? `Exploring posts with this tag`
+            : "Explore the latest articles and insights from our community"}
+        </p>
+      </div>
 
+      {/* 3 Column Layout */}
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-[260px_1fr_260px] xl:grid-cols-[300px_1fr_300px]">
+        {/* Left Column - Filters & Tags */}
+        <aside className="order-2 lg:order-1">
+          <div className="rounded-xl border border-gray-200 bg-white p-6 shadow-sm lg:sticky lg:top-24">
+            <h2 className="mb-4 text-lg font-semibold text-gray-900">Filters & Tags</h2>
+            <Sidebar showFilters />
+          </div>
+        </aside>
+
+        {/* Center Column - Posts List */}
+        <main className="order-1 min-w-0 lg:order-2">
           {posts.length === 0 ? (
             tag || dateFrom || dateTo ? (
               <EmptyState
@@ -129,14 +145,25 @@ export default async function HomePage({ searchParams }: HomePageProps) {
               )}
             </>
           )}
-        </div>
+        </main>
 
-        {/* Sidebar - hidden on mobile, shows filters on desktop */}
-        <div className="hidden lg:block">
-          <div className="sticky top-8">
-            <Sidebar showFilters />
+        {/* Right Column - User Info */}
+        <aside className="order-3">
+          <div className="space-y-6 lg:sticky lg:top-24">
+            <UserProfileCard user={user} />
+
+            {/* Additional Info Card */}
+            <div className="rounded-xl border border-gray-200 bg-gradient-to-br from-blue-50 to-indigo-50 p-6 shadow-sm">
+              <h3 className="mb-2 font-semibold text-gray-900">💡 Quick Tips</h3>
+              <ul className="space-y-2 text-sm text-gray-600">
+                <li>• Use tags to organize posts</li>
+                <li>• Write in Markdown format</li>
+                <li>• Comments need approval</li>
+                <li>• Like posts you enjoy</li>
+              </ul>
+            </div>
           </div>
-        </div>
+        </aside>
       </div>
 
       {/* Mobile Hamburger Menu */}

@@ -9,36 +9,43 @@ interface DraftPost {
   title: string;
   slug: string;
   content: string;
+  status: string;
   created_at: string;
   updated_at: string;
+  published_at?: string;
   tags?: Array<{ name: string; display_name: string }>;
 }
 
-export function DraftList() {
+interface DraftListProps {
+  status?: "drafts" | "published";
+}
+
+export function DraftList({ status = "drafts" }: DraftListProps) {
   const router = useRouter();
-  const [drafts, setDrafts] = useState<DraftPost[]>([]);
+  const [posts, setPosts] = useState<DraftPost[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
 
   useEffect(() => {
-    fetchDrafts();
-  }, []);
+    fetchPosts();
+  }, [status]);
 
-  const fetchDrafts = async () => {
+  const fetchPosts = async () => {
     try {
       setLoading(true);
       setError(null);
-      const response = await fetch("/api/posts?status=draft");
+      const apiStatus = status === "drafts" ? "draft" : "published";
+      const response = await fetch(`/api/posts?status=${apiStatus}`);
 
       if (!response.ok) {
-        throw new Error("Failed to fetch drafts");
+        throw new Error(`Failed to fetch ${status}`);
       }
 
       const data = await response.json();
-      setDrafts(data.data || []);
+      setPosts(data.data.data || []);
     } catch (err: any) {
-      setError(err.message || "Failed to load drafts");
+      setError(err.message || `Failed to load ${status}`);
     } finally {
       setLoading(false);
     }
@@ -49,7 +56,8 @@ export function DraftList() {
   };
 
   const handleDelete = async (postId: string) => {
-    if (!confirm("Are you sure you want to delete this draft?")) {
+    const isDraft = status === "drafts";
+    if (!confirm(`Are you sure you want to delete this ${isDraft ? "draft" : "post"}?`)) {
       return;
     }
 
@@ -60,12 +68,12 @@ export function DraftList() {
       });
 
       if (!response.ok) {
-        throw new Error("Failed to delete draft");
+        throw new Error(`Failed to delete ${isDraft ? "draft" : "post"}`);
       }
 
-      setDrafts((prev) => prev.filter((draft) => draft.id !== postId));
+      setPosts((prev) => prev.filter((post) => post.id !== postId));
     } catch (err: any) {
-      alert(err.message || "Failed to delete draft");
+      alert(err.message || `Failed to delete ${isDraft ? "draft" : "post"}`);
     } finally {
       setDeletingId(null);
     }
@@ -89,45 +97,63 @@ export function DraftList() {
     );
   }
 
-  if (drafts.length === 0) {
+  if (posts.length === 0) {
     return (
       <div className="py-12 text-center">
-        <p className="mb-4 text-gray-600">No drafts yet</p>
-        <button
-          onClick={() => router.push("/posts/new")}
-          className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
-        >
-          Create Your First Post
-        </button>
+        <p className="mb-4 text-gray-600">
+          {status === "drafts" ? "No drafts yet" : "No published posts yet"}
+        </p>
+        {status === "drafts" && (
+          <button
+            onClick={() => router.push("/posts/new")}
+            className="rounded-lg bg-blue-600 px-4 py-2 text-white hover:bg-blue-700"
+          >
+            Create Your First Post
+          </button>
+        )}
       </div>
     );
   }
 
+  const isDraft = status === "drafts";
+
   return (
     <div className="space-y-6">
-      {drafts.map((draft) => (
-        <div key={draft.id} className="relative">
-          <PostCard post={draft} showExcerpt={true} />
+      {posts.map((post) => (
+        <div key={post.id} className="relative">
+          <PostCard post={post} showExcerpt={true} />
 
           <div className="mt-4 flex gap-3">
+            {isDraft && (
+              <>
+                <button
+                  onClick={() => handleEdit(post.id)}
+                  className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                >
+                  Edit
+                </button>
+                <button
+                  onClick={() => handlePublish(post.id)}
+                  className="rounded-lg bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700"
+                >
+                  Publish
+                </button>
+              </>
+            )}
+            {!isDraft && (
+              <button
+                onClick={() => router.push(`/posts/${post.id}/${post.slug}`)}
+                className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+              >
+                View Post
+              </button>
+            )}
             <button
-              onClick={() => handleEdit(draft.id)}
-              className="rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
-            >
-              Edit
-            </button>
-            <button
-              onClick={() => handlePublish(draft.id)}
-              className="rounded-lg bg-green-600 px-4 py-2 text-sm text-white hover:bg-green-700"
-            >
-              Publish
-            </button>
-            <button
-              onClick={() => handleDelete(draft.id)}
-              disabled={deletingId === draft.id}
+              onClick={() => handleDelete(post.id)}
+              disabled={deletingId === post.id}
               className="rounded-lg border border-red-300 px-4 py-2 text-sm text-red-600 hover:bg-red-50 disabled:opacity-50"
             >
-              {deletingId === draft.id ? "Deleting..." : "Delete"}
+              {deletingId === post.id ? "Deleting..." : "Delete"}
             </button>
           </div>
         </div>

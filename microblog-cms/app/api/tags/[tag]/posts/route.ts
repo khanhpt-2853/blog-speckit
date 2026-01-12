@@ -15,7 +15,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     // Verify tag exists
     const { data: tagData, error: tagError } = await supabase
       .from("tags")
-      .select("name, display_name")
+      .select("id, name, display_name")
       .eq("name", tag)
       .single();
 
@@ -27,7 +27,7 @@ export async function GET(request: NextRequest, { params }: { params: Promise<{ 
     const { data: postTags, error: postTagsError } = await supabase
       .from("post_tags")
       .select("post_id")
-      .eq("tag_id", tag);
+      .eq("tag_id", tagData.id);
 
     if (postTagsError) {
       console.error("Error fetching post tags:", postTagsError);

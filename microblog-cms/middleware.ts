@@ -52,14 +52,6 @@ export async function middleware(request: NextRequest) {
     return NextResponse.redirect(new URL("/login", request.url));
   }
 
-  // Check moderator role for moderation routes
-  if (request.nextUrl.pathname.startsWith("/moderation") && user) {
-    const role = user.user_metadata?.role;
-    if (role !== "moderator" && role !== "author") {
-      return NextResponse.redirect(new URL("/", request.url));
-    }
-  }
-
   return response;
 }
 

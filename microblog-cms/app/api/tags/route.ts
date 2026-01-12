@@ -1,16 +1,15 @@
-import { NextRequest } from "next/server";
 import { createClient } from "@/lib/supabase/server";
 import { createSuccessResponse, internalError } from "@/lib/utils/errors";
 
 // GET /api/tags - Get all tags with post counts
-export async function GET(request: NextRequest) {
+export async function GET() {
   try {
     const supabase = await createClient();
 
     // Fetch all tags with their post counts
     const { data: tags, error } = await supabase
       .from("tags")
-      .select("name, display_name")
+      .select("id, name, display_name")
       .order("name");
 
     if (error) {
@@ -33,7 +32,7 @@ export async function GET(request: NextRequest) {
         const { count } = await supabase
           .from("post_tags")
           .select("*", { count: "exact", head: true })
-          .eq("tag_id", tag.name)
+          .eq("tag_id", tag.id)
           .in("post_id", publishedPostIds);
 
         return {

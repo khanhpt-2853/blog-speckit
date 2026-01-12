@@ -1,11 +1,53 @@
-import { createClient } from "@/lib/supabase/server";
-import Link from "next/link";
+"use client";
 
-export default async function MainLayout({ children }: { children: React.ReactNode }) {
-  const supabase = await createClient();
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+import { createClient } from "@/lib/supabase/client";
+import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
+import type { User } from "@supabase/supabase-js";
+
+export default function MainLayout({ children }: { children: React.ReactNode }) {
+  const router = useRouter();
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const supabase = createClient();
+
+    // Get initial user
+    supabase.auth.getUser().then(({ data: { user } }) => {
+      setUser(user);
+      setLoading(false);
+    });
+
+    // Listen for auth changes
+    const {
+      data: { subscription },
+    } = supabase.auth.onAuthStateChange((_event, session) => {
+      setUser(session?.user ?? null);
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  const handleLogout = async () => {
+    try {
+      const response = await fetch("/api/auth/logout", {
+        method: "POST",
+      });
+
+      if (response.ok) {
+        router.push("/");
+        router.refresh();
+      }
+    } catch (error) {
+      console.error("Logout error:", error);
+    }
+  };
+
+  if (loading) {
+    return null; // Or a loading spinner
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -24,7 +66,7 @@ export default async function MainLayout({ children }: { children: React.ReactNo
               {user ? (
                 <>
                   <Link href="/posts/drafts" className="text-gray-600 hover:text-gray-900">
-                    My Drafts
+                    My Posts
                   </Link>
                   <Link
                     href="/posts/new"
@@ -32,11 +74,27 @@ export default async function MainLayout({ children }: { children: React.ReactNo
                   >
                     Write
                   </Link>
-                  <form action="/api/auth/logout" method="POST">
-                    <button type="submit" className="text-gray-600 hover:text-gray-900">
+
+                  {/* User Info */}
+                  <div className="flex items-center gap-3 border-l pl-4">
+                    <div className="flex items-center gap-2">
+                      <div className="flex h-8 w-8 items-center justify-center rounded-full bg-blue-600 text-sm font-semibold text-white">
+                        {user.email?.charAt(0).toUpperCase() || "U"}
+                      </div>
+                      <div className="text-sm">
+                        <p className="font-medium text-gray-900">
+                          {user.user_metadata?.name || user.email?.split("@")[0] || "User"}
+                        </p>
+                        <p className="text-xs text-gray-500">{user.email}</p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={handleLogout}
+                      className="text-sm text-gray-600 hover:text-gray-900"
+                    >
                       Logout
                     </button>
-                  </form>
+                  </div>
                 </>
               ) : (
                 <Link
