@@ -1,531 +1,390 @@
 # Microblog CMS
 
-A modern, feature-rich microblogging platform built with Next.js 16, Supabase, and TypeScript. Create, organize, and share your thoughts with Markdown support, tag-based organization, comments, likes, and responsive design.
+A modern, full-featured microblogging content management system built with Next.js 16, Supabase, and TypeScript. Features include post management, comment moderation, tag-based filtering, and a responsive 3-column layout.
 
-## Features
+![Next.js](https://img.shields.io/badge/Next.js-16.1.1-black)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue)
+![Supabase](https://img.shields.io/badge/Supabase-PostgreSQL-green)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC)
 
-✅ **Author Content Creation**
+## ✨ Features
 
-- Create posts with GitHub Flavored Markdown
-- Live Markdown preview in split-view editor
-- Save as drafts (private, author-only visibility)
-- Edit drafts multiple times
-- Publish to public timeline (immutable once published)
-- Tag management (max 5 tags, normalized lowercase-hyphenate)
-- Rate limiting (10 posts/hour to prevent spam)
+### Content Management
 
-✅ **Tag Organization**
+- 📝 **Rich Post Editor** - Markdown support with live preview
+- 🏷️ **Tag System** - Organize posts with multiple tags (max 5 per post)
+- 📄 **Draft & Publish** - Save drafts before publishing
+- ✏️ **Post Editing** - Edit title, content, and tags after creation
+- 🔍 **Tag Filtering** - Filter posts by tags on homepage
+- 📄 **Pagination** - 10 posts per page for better performance
 
-- Browse posts by tag
-- Tag cloud visualization with font scaling
-- Popular tags sidebar
-- Filter posts by multiple tags
+### User Engagement
 
-✅ **Browse & Filter**
+- 💬 **Comments** - Threaded comment system with moderation
+- ❤️ **Likes** - Like posts and see like counts
+- 👤 **User Profiles** - Display user info and pending tasks
+- 🔔 **Pending Badge** - Visual indicator for comments awaiting moderation
 
-- Homepage displaying published posts with pagination
-- Advanced filtering by tags, date range, and search
-- Responsive layouts (desktop 3-column, tablet 2-column, mobile single-column)
-- Hamburger menu for mobile navigation
+### Moderation
 
-✅ **Comments & Likes**
+- ✅ **Comment Moderation** - Approve or reject comments
+- 🛡️ **Row-Level Security** - Supabase RLS policies for data protection
+- 👮 **Moderator Access** - Dedicated moderation queue interface
 
-- Comment system with moderation workflow
-- Like posts with optimistic UI updates
-- Email notifications on comment approval
-- Moderator dashboard for comment management
+### User Experience
 
-✅ **Responsive Design & Performance**
+- 📱 **Responsive Design** - Mobile-first 3-column layout
+- 🎨 **Modern UI** - Clean, intuitive interface with Tailwind CSS
+- 🔐 **Authentication** - Secure login/register with Supabase Auth
+- ⚡ **Fast Performance** - Built with Next.js 16 and Turbopack
 
-- Mobile-first design with touch-optimized controls (≥44x44px touch targets)
-- Performance optimizations (compression, dynamic imports, image optimization)
-- Lighthouse score >80 on mobile
-- E2E tests for responsive layouts
+## 🛠️ Tech Stack
 
-## Tech Stack
+### Frontend
 
-- **Framework**: Next.js 16.1.1 (App Router, React 19, Server Components)
-- **Language**: TypeScript 5.9 (strict mode)
-- **Database**: Supabase PostgreSQL with Row-Level Security
-- **Auth**: Supabase Auth (OAuth providers + email/password)
-- **Styling**: Tailwind CSS 4 with custom breakpoints (768px, 1024px)
-- **Markdown**: react-markdown + remark-gfm + rehype-highlight + rehype-sanitize
-- **Rate Limiting**: Upstash Redis with @upstash/ratelimit
-- **Email**: Resend (for notifications)
-- **Testing**: Vitest (unit/integration), Playwright (E2E)
-- **Deployment**: Vercel
+- **Next.js 16.1.1** - React framework with App Router
+- **React 19.2.3** - UI library
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first CSS framework
+- **React Markdown** - Markdown rendering with syntax highlighting
 
-## Prerequisites
+### Backend
 
-- Node.js 18+
-- pnpm 10+
-- Supabase account (https://supabase.com)
-- Upstash Redis account (https://upstash.com) for rate limiting
+- **Supabase** - PostgreSQL database and authentication
+- **Next.js API Routes** - RESTful API endpoints
+- **Supabase RLS** - Row-level security policies
 
-## Getting Started
+### Additional Tools
 
-### 1. Clone and Install Dependencies
+- **Upstash Redis** - Rate limiting (optional)
+- **Resend** - Email notifications (optional)
+- **ESLint** - Code linting
+- **Prettier** - Code formatting
+- **Vitest** - Unit testing
+- **Playwright** - E2E testing
+
+## 📋 Prerequisites
+
+- Node.js 18+ or 20+
+- pnpm (or npm/yarn)
+- Supabase account
+- Git
+
+## 🚀 Getting Started
+
+### 1. Clone the Repository
 
 ```bash
+git clone <your-repo-url>
 cd microblog-cms
+```
+
+### 2. Install Dependencies
+
+```bash
 pnpm install
 ```
 
-### 2. Set Up Supabase
+### 3. Environment Setup
 
-1. Create a new project at https://supabase.com
-2. Copy your project credentials
-3. Create `.env.local` from the template:
+Create a `.env.local` file in the root directory:
+
+```env
+# Supabase (Required)
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+SUPABASE_SERVICE_ROLE_KEY=your-service-role-key
+
+# App URL (Required)
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+
+# Upstash Redis (Optional - for rate limiting)
+UPSTASH_REDIS_REST_URL=your-upstash-url
+UPSTASH_REDIS_REST_TOKEN=your-upstash-token
+
+# Resend (Optional - for email notifications)
+RESEND_API_KEY=your-resend-api-key
+```
+
+### 4. Database Setup
+
+#### Run Migrations
+
+1. Go to your Supabase project dashboard
+2. Navigate to SQL Editor
+3. Execute the following SQL files in order:
+
+```sql
+-- Main schema
+supabase/migrations/20260111000001_initial_schema.sql
+
+-- RLS policy fixes
+supabase/fix-comments-rls.sql
+supabase/fix-tags-rls.sql
+```
+
+#### Verify Tables Created
+
+Check that these tables exist:
+
+- `posts`
+- `tags`
+- `post_tags`
+- `comments`
+- `likes`
+
+### 5. Run Development Server
 
 ```bash
-cp .env.local.template .env.local
-```
-
-4. Fill in your Supabase credentials:
-
-```env
-NEXT_PUBLIC_SUPABASE_URL=https://xxxxx.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJxxx...
-SUPABASE_SERVICE_ROLE_KEY=eyJxxx...
-```
-
-### 3. Apply Database Migration
-
-```bash
-# Install Supabase CLI globally
-npm install -g supabase
-
-# Link to your project
-pnpm supabase link --project-ref your-project-ref
-
-# Apply migration
-pnpm supabase db push
-```
-
-### 4. Set Up Upstash Redis (Rate Limiting)
-
-1. Create a Redis database at https://upstash.com
-2. Add credentials to `.env.local`:
-
-```env
-UPSTASH_REDIS_REST_URL=https://xxx.upstash.io
-UPSTASH_REDIS_REST_TOKEN=AYxxx...
-```
-
-### 5. Set Up Resend (Email Notifications)
-
-1. Create an account at https://resend.com
-2. Add your API key to `.env.local`:
-
-```env
-RESEND_API_KEY=re_xxx...
-EMAIL_FROM=noreply@yourdomain.com
-```
-
-### 6. Run Development Server
-
-````bash
 pnpm dev
-```with post list & filters
+```
+
+Open [http://localhost:3000](http://localhost:3000) in your browser.
+
+## 📁 Project Structure
+
+```
+microblog-cms/
+├── app/                          # Next.js App Router
+│   ├── (auth)/                   # Authentication routes
+│   │   ├── login/
+│   │   └── register/
+│   ├── (main)/                   # Main application routes
+│   │   ├── moderation/           # Comment moderation
 │   │   ├── posts/
-│   │   │   ├── new/         # Create post
-│   │   │   ├── drafts/      # Author's drafts
-│   │   │   └── [id]/
-│   │   │       ├── edit/    # Edit draft
-│   │   │       └── [slug]/  # View post (with comments & likes)
-│   │   ├── tags/
-│   │   │   └── [tag]/       # Posts by tag
-│   │   └── moderation/      # Moderator dashboard
-│   ├── (auth)/              # Auth layout group
-│   │   ├── login/           # Login page
-│   │   └── register/        # Registration page
-│   ├── api/                 # API Routes
-│   │   ├── posts/           # Post CRUD + likes
-│   │   ├── tags/            # Tag management
-│   │   ├── comments/        # Comment system
-│   │   └── moderation/      # Moderation queue
-│   ├── error.tsx            # Global error boundary
-│   ├── not-found.tsx        # 404 page
-│   ├── globals.css
-│   └── layout.tsx
+│   │   │   ├── [id]/[slug]/      # Post detail view
+│   │   │   ├── [id]/edit/        # Post editing
+│   │   │   ├── drafts/           # User's drafts
+│   │   │   └── new/              # Create new post
+│   │   └── tags/[tag]/           # Tag-filtered posts
+│   └── api/                      # API routes
+│       ├── auth/logout/
+│       ├── comments/
+│       ├── likes/
+│       ├── moderation/
+│       ├── posts/
+│       └── tags/
 ├── components/
-│   ├── comments/            # Comment components
-│   ├── layout/              # Layout components (Sidebar, HamburgerMenu, FilterPanel)
-│   ├── markdown/            # Markdown rendering
-│   ├── moderation/          # Moderation components
-│   ├── posts/               # Post UI components (LikeButton, PostCard, PostEditor)
-│   ├── tags/                # Tag components (TagInput, TagCloud, PopularTags)
-│   └── ui/                  # UI primitives (Pagination, Loading, EmptyState, Toast)
+│   ├── comments/                 # Comment components
+│   ├── layout/                   # Layout components
+│   ├── markdown/                 # Markdown rendering
+│   ├── moderation/               # Moderation UI
+│   ├── posts/                    # Post components
+│   ├── tags/                     # Tag components
+│   └── ui/                       # Shared UI components
 ├── lib/
-│   ├── email/               # Email notifications (Resend)
-│   ├── markdown/            # Sanitization
-│   ├── rate-limit/          # Rate limiters (Upstash Redis)
-│   ├── supabase/            # Database clients
-│   └── utils/               # Helper functions
+│   ├── email/                    # Email utilities
+│   ├── markdown/                 # Markdown processing
+│   ├── rate-limit/               # Rate limiting
+│   ├── supabase/                 # Supabase clients
+│   └── utils/                    # Utility functions
 ├── supabase/
-│   └── migrations/          # Database schema
-├── tests/
-│   ├── unit/                # Unit tests (Vitest)
-│   └── e2e/                 # E2E tests (Playwright)
-│   ├── markdown/            # Markdown rendering
-│   ├── posts/               # Post UI components
-│   └── tags/                # Tag components
-├── lib/
-│   ├── markdown/            # Sanitization
-│   ├── rate-limit/          # Rate limiters
-│   ├── supabase/            # Database clients
-│   └── utils/               # Helper functions
-├── supabase/
-│   └── migrations/          # Database schema
-├── types/                   # TypeScript types
-└── middleware.ts            # Auth protection
-````
-
-## Database Schema
-
-### Tables
-
-1. **posts** - Blog posts with draft/published status
-2. **tags** - Normalized tag names
-3. **post_tags** - Many-to-many junction (max 5 tags)
-4. **comments** - Moderation workflow (pending/approved/rejected/flagged)
-5. **likes** - Unique user likes per post
-
-```http
-POST /api/posts
-Content-Type: application/json
-Authorization: Bearer <token>
-
-{
-  "title": "My Post Title",
-  "content": "# Markdown content here",
-  "tags": ["javascript", "web-dev"]
-}
+│   ├── migrations/               # Database migrations
+│   ├── fix-comments-rls.sql      # RLS fixes for comments
+│   └── fix-tags-rls.sql          # RLS fixes for tags
+├── types/
+│   └── database.types.ts         # TypeScript types
+└── tests/
+    ├── e2e/                      # End-to-end tests
+    └── unit/                     # Unit tests
 ```
 
-#### List Published Posts
+## 🔌 API Routes
 
-```http
-GET /api/posts?page=1&per_page=10&tag=javascript&date_from=2024-01-01&date_to=2024-12-31
-```
+### Posts
 
-#### Get Single Post
-
-```http
-GET /api/posts/{id}
-```
-
-#### Update Draft
-
-```http
-PATCH /api/posts/{id}
-Content-Type: application/json
-Authorization: Bearer <token>
-
-{
-  "title": "Updated Title",
-  "content": "Updated content",
-  "tags": ["new-tag"]
-}
-```
-
-#### Publish Draft
-
-```http
-POST /api/posts/{id}/publish
-Authorization: Bearer <token>
-```
-
-#### Delete Draft
-
-```http
-DELETE /api/posts/{id}
-Authorization: Bearer <token>
-```
-
-### Tags
-
-#### List All Tags
-
-```http
-GET /api/tags
-```
-
-#### Get Posts by Tag
-
-```http
-GET /api/tags/{tag}/posts?page=1&per_page=10
-```
+- `GET /api/posts` - List posts (supports filtering, pagination)
+- `POST /api/posts` - Create new post
+- `GET /api/posts/[id]` - Get post by ID
+- `PUT /api/posts/[id]` - Update post
+- `DELETE /api/posts/[id]` - Delete post
+- `POST /api/posts/[id]/publish` - Publish/unpublish post
+- `GET /api/posts/[id]/likes` - Get post likes
+- `POST /api/posts/[id]/likes` - Toggle like on post
 
 ### Comments
 
-#### List Comments
+- `GET /api/comments` - List comments for a post
+- `POST /api/comments` - Create new comment
+- `POST /api/comments/[id]/moderate` - Approve/reject comment
 
-```http
-GET /api/comments?post_id={id}&status=approved
-```
+### Tags
 
-#### Create Comment
+- `GET /api/tags` - List all tags with post counts
+- `GET /api/tags/[tag]/posts` - Get posts by tag
 
-```http
-POST /api/comments
-Content-Type: application/json
+### Moderation
 
-{
-  "post_id": "uuid",
-  "author_name": "John Doe",
-  "content": "Great post!"
-}
-```
-
-#### Moderate Comment
-
-```http
-PATCH /api/comments/{id}/moderate
-Content-Type: application/json
-Authorization: Bearer <token>
-
-{
-  "status": "approved"  // or "rejected" or "flagged"
-}
-```
-
-### Likes
-
-#### Toggle Like
-
-````http
-POST /api/likes
-Content-Type: application/json
-Authorization: Bearer <token>
-
-   - `EMAIL_FROM`
-4. Deploy!
-
-## Key Features Explained
-
-### Markdown Rendering
-
-Posts support full Markdown with:
-- **Syntax highlighting**: Via rehype-highlight
-- **GitHub Flavored Markdown**: Tables, task lists, strikethrough
-- **Sanitization**: XSS protection with rehype-sanitize
-- **Dynamic imports**: Code splitting for optimal performance
-
-### Tag System
-
-- Create tags while writing posts (max 5 per post)
-- Tag cloud visualization with font scaling based on popularity
-- Popular tags sidebar with post counts
-- Filter posts by single or multiple tags
-- Normalized tag names (lowercase-hyphenate format)
-
-### Comment Moderation Workflow
-✅
-- [x] **Phase 4**: User Story 2 - Tag Organization ✅
-- [x] **Phase 5**: User Story 3 - Browse/Filter ✅
-- [x] **Phase 6**: User Story 4 - Comments/Likes ✅
-- [x] **Phase 7**: User Story 5 - Responsive Design & Performance ✅
-- [ ] **Phase 8**: Polish & Production (in progress)
-
-## Contributing
-
-This project follows a spec-driven development process. See `/specs/001-microblog-cms/` for:
-
-- `spec.md` - Feature specification
-- `plan.md` - Technical architecture
-- `data-model.md` - Database design
-- `contracts/` - API contracts
-- `tasks.md` - Implementation breakdown (130 tasks)
-
-### Development Workflow
-
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/amazing-feature`)
-3. Make your changes
-4. Run tests (`pnpm test && pnpm test:e2e`)
-5. Run linting (`pnpm lint`)
-6. Format code (`pnpm format`)
-7. Commit changes (`git commit -m 'Add amazing feature'`)
-8. Push to branch (`git push origin feature/amazing-feature`)
-9. Open a Pull Request
-
-## License
-
-MIT License - see [LICENSE](LICENSE) for detailslemented with Upstash Redis using sliding window algorithm:
-- **Posts**: 10 per hour (prevents spam)
-- **Comments**: 30 per hour
-- **Likes**: 100 per hour
-
-### Responsive Design
-
-- **Desktop (1024px+)**: 3-column layout (sidebar with filters, main content, popular tags)
-- **Tablet (768px-1023px)**: 2-column layout with hamburger menu
-- **Mobile (<768px)**: Single column with hamburger menu for navigation
-
-Touch targets meet WCAG 2.1 AAA standards (≥44x44px) for optimal mobile accessibility.
+- `GET /api/moderation/comments` - Get comments pending moderation
 
 ### Authentication
 
-- Email/password authentication via Supabase Auth
-- Email confirmation required for new accounts
-- Secure session management
-- Protected routes via Next.js middleware
-- Row Level Security policies in database
+- `POST /api/auth/logout` - Logout user
 
-## Performance Optimizations
+## 🧪 Testing
 
-- **Server Components**: Default for optimal performance
-- **Dynamic Imports**: Code splitting for MarkdownRenderer
-- **Image Optimization**: AVIF/WebP with automatic format selection
-- **Compression**: Gzip/Brotli enabled in production
-- **Package Optimization**: Experimental Next.js feature for react-markdown, remark-gfm, rehype-highlight, date-fns
-- **Console Log Removal**: Automatic removal in production (keeps error/warn)
-
-Performance targets:
-- Lighthouse Score: >80 on mobile
-- Time to Interactive: <3s on 3G
-- API Response: p95 <200ms
-
-See [PERFORMANCE_TESTING.md](PERFORMANCE_TESTING.md) for detailed testing procedures.
-
-## Security
-
-- **Row Level Security**: All database access controlled by Supabase RLS policies (23 policies)
-- **Rate Limiting**: Prevents abuse with Upstash Redis
-- **Input Validation**: All user inputs validated and sanitized
-- **CSRF Protection**: Built-in Next.js CSRF protection
-- **XSS Prevention**: Markdown sanitization with rehype-sanitize
-- **Authentication**: Secure session management with Supabase Auth
-- **Environment Variables**: Sensitive data stored in env vars, never committed
-
-## Testing
-
-### Unit Tests (Vitest)
+### Run Unit Tests
 
 ```bash
 pnpm test
-````
+```
 
-Tests cover:
-
-- Markdown rendering performance (<100ms module load, <10ms processing)
-- Utility functions
-- Component logic
-
-### E2E Tests (Playwright)
+### Run E2E Tests
 
 ```bash
 pnpm test:e2e
 ```
 
-Tests include:
-
-- Responsive layout validation (desktop/tablet/mobile)
-- Touch target compliance (≥44x44px)
-- Navigation flows (hamburger menu functionality)
-- Form submissions
-- Viewport meta tag validation": "uuid"
-  }
-
-````
-
-#### Get Like Count
-```http
-GET /api/posts/{id}/likes
-}
-````
-
-#### Publish Draft
-
-```http
-POST /api/posts/{id}/publish
-Authorization: Bearer <token>
-```
-
-#### Delete Draft
-
-```http
-DELETE /api/posts/{id}
-Authorization: Bearer <token>
-```
-
-## Development
-
-### Run Tests
-
-```bash
-# Unit tests
-pnpm test
-
-# E2E tests
-pnpm test:e2e
-
-# Type checking
-pnpm tsc --noEmit
-```
+## 🎨 Code Quality
 
 ### Linting
 
 ```bash
-# ESLint
 pnpm lint
+```
 
-# Prettier
+### Type Checking
+
+```bash
+pnpm type-check
+```
+
+### Code Formatting
+
+```bash
+# Check formatting
+pnpm format:check
+
+# Fix formatting
 pnpm format
 ```
 
-### Build
+## 🏗️ Building for Production
 
 ```bash
 pnpm build
 ```
 
-## Deployment
+The build output will be in the `.next` directory.
 
-### Vercel (Recommended)
+### Start Production Server
 
-1. Push code to GitHub
-2. Import project in Vercel
-3. Add environment variables in Vercel dashboard:
-   - `NEXT_PUBLIC_SUPABASE_URL`
-   - `NEXT_PUBLIC_SUPABASE_ANON_KEY`
-   - `SUPABASE_SERVICE_ROLE_KEY`
-   - `UPSTASH_REDIS_REST_URL`
-   - `UPSTASH_REDIS_REST_TOKEN`
-   - `RESEND_API_KEY` (for US4 notifications)
-   - `NEXT_PUBLIC_APP_URL` (your domain)
-4. Deploy!
+```bash
+pnpm start
+```
 
-## Roadmap
+## 🚀 Deployment
 
-- [x] **Phase 1**: Project setup
-- [x] **Phase 2**: Foundational infrastructure
-- [x] **Phase 3**: User Story 1 - Create/Publish Posts (MVP) ✅
-- [ ] **Phase 4**: User Story 2 - Tag Organization
-- [ ] **Phase 5**: User Story 3 - Browse/Filter
-- [ ] **Phase 6**: User Story 4 - Comments/Likes
-- [ ] **Phase 7**: User Story 5 - Responsive Design
-- [ ] **Phase 8**: Polish & Production
+### Deploy to Vercel (Recommended)
 
-## Contributing
+1. **Push to GitHub**
 
-This project follows a spec-driven development process. See `/specs/001-microblog-cms/` for:
+   ```bash
+   git add .
+   git commit -m "Ready for deployment"
+   git push origin main
+   ```
 
-- `spec.md` - Feature specification
-- `plan.md` - Technical architecture
-- `data-model.md` - Database design
-- `contracts/` - API contracts
-- `tasks.md` - Implementation breakdown
+2. **Import to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Import your GitHub repository
+   - Framework Preset: Next.js
+   - Root Directory: `./` (or adjust if needed)
 
-## License
+3. **Configure Environment Variables**
+   Add all environment variables from `.env.local` in Vercel dashboard
 
-MIT
+4. **Deploy**
+   Vercel will automatically build and deploy your application
 
-## Support
+For detailed deployment instructions, see [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md)
 
-For issues or questions, please refer to:
+## 🔐 Security
 
-- [Specification](../specs/001-microblog-cms/spec.md)
-- [Implementation Summary](./IMPLEMENTATION_SUMMARY.md)
-- [Technical Plan](../specs/001-microblog-cms/plan.md)
+### Row-Level Security (RLS)
+
+The application uses Supabase RLS policies to ensure:
+
+- Users can only edit/delete their own posts
+- Users can only modify their own comments
+- Comments are only visible after moderation approval
+- Proper access control for all database operations
+
+### Rate Limiting
+
+Optional rate limiting via Upstash Redis:
+
+- Prevents API abuse
+- Falls back to unlimited requests if not configured
+- Configure `UPSTASH_REDIS_REST_URL` and `UPSTASH_REDIS_REST_TOKEN` for production
+
+## 🎯 Key Features in Detail
+
+### Post Management
+
+- Create posts with markdown formatting
+- Add up to 5 tags per post
+- Save as draft or publish immediately
+- Edit posts after creation
+- Delete posts (with confirmation)
+
+### Comment System
+
+- Add comments to published posts
+- Comments require moderation before appearing
+- Authors receive email notifications (if configured)
+- Moderators can approve/reject from moderation queue
+
+### Tag System
+
+- Auto-generated tag slugs
+- Tag cloud with popular tags
+- Filter posts by clicking tags
+- Tag management with normalization
+
+### User Interface
+
+- 3-column responsive layout:
+  - Left: Filters and sidebar
+  - Center: Posts feed
+  - Right: User profile and stats
+- Mobile-friendly hamburger menu
+- Real-time pending comment count badge
+- Smooth pagination
+
+## 🐛 Known Issues
+
+1. **Middleware Warning**: Next.js 16 shows deprecation warning for "middleware" → "proxy" convention
+   - Non-blocking, middleware works correctly
+   - Will need migration in future Next.js versions
+
+2. **React Hook Warnings**: 4 `exhaustive-deps` warnings in ESLint
+   - Non-blocking, components function correctly
+   - Can be resolved by memoizing functions
+
+## 📝 License
+
+This project is licensed under the MIT License.
+
+## 🤝 Contributing
+
+Contributions are welcome! Please feel free to submit a Pull Request.
+
+## 📧 Support
+
+For issues and questions:
+
+- Open an issue on GitHub
+- Check existing documentation
+- Review [DEPLOYMENT_CHECKLIST.md](./DEPLOYMENT_CHECKLIST.md) for deployment help
+
+## 🙏 Acknowledgments
+
+- [Next.js](https://nextjs.org/)
+- [Supabase](https://supabase.com/)
+- [Tailwind CSS](https://tailwindcss.com/)
+- [Vercel](https://vercel.com/)
+
+---
+
+**Built with ❤️ using Next.js 16 and Supabase**
